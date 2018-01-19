@@ -1,0 +1,36 @@
+doctype html
+html
+  head
+    title= '客户登陆'
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    script(src='/static/js/jquery-2.1.1.min.js')
+    script(src='/static/js/bootstrap.min.js')
+    link(rel='stylesheet', href='/static/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/static/css/style.css')
+  body
+    .wrapper
+      #errMsg
+        if errMsg
+          pre= errMsg
+      form.form-signin(action='/users/login', method='POST')
+        h2.form-signin-heading(align='center') 客户登陆
+        input.form-control(type='input',name='username',placeholder='请输入账号')
+        p
+        input.form-control(type='password',name='password',placeholder='请输入密码')
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登陆</button>
+    //h1= title
+    //
+    //#errMsg
+    //  if errMsg
+    //    pre= errMsg
+    //
+    //form.form-horizontal(action='/users/login', method='POST')
+    //  .form-group
+    //    label.col-sm-2.control-label 用户名
+    //    .col-sm-10: input(type='input', name='username')
+    //  .form-group
+    //    label.col-sm-2.control-label 密码
+    //    .col-sm-10: input(type='password', name='password')
+    //  .col-sm-offset-2.col-sm-10
+    //    input.btn.btn-default(type='submit', value='登录')
+    //    a.btn.btn-default(href="/users/register") 注册

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>客户登录</title>
+  <link rel='stylesheet' href='/static/css/bootstrap3.0.2.min.css'>
+
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+<div class="wrapper">
+  <form class="form-signin" action='/users/login', method='POST'>
+    <h2 class="form-signin-heading">客户登录</h2>
+    <input type="text" class="form-control" name="username" placeholder="请输入账号" required="" autofocus="" />
+    <input type="password" class="form-control" name="password" placeholder="请输入密码" required=""/>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">登录</button>
+  </form>
+</div>
+</body>
+
+</html>

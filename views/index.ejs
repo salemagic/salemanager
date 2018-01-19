@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Index</title>
+
+<script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<!--图标样式-->
+<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css"/>
+<!--主要样式-->
+<link rel="stylesheet" type="text/css" href="/static/css/style.css"/>
+
+<!--<script type="text/javascript" src="/static/javascripts/test.js"></script>-->
+</head>
+<body>
+
+<h1>树形结构</h1>
+
+<script type="text/javascript">
+    $(function () {
+
+        var json =
+                [{
+                    "name": "中科慈航",
+                    "code":"ZKCH",
+                    "icon": "icon-th",
+                    "child": [
+                        {
+                            "name": "广州中科慈航",
+                            "icon": "icon-minus-sign",
+                            "code":"GZZKCH",
+                            "parentCode": "ZKCH",
+                            "child": [
+                                {
+                                    "name": "广州中科慈航天河区分行",
+                                    "code":"GZZKCHTQFH",
+                                    "icon": "icon-minus-sign",
+                                    "parentCode": "GZZKCH",
+                                    "child": [{
+                                        "name":"堂下销售部",
+                                        "code":"txxxb",
+                                        "icon":"",
+                                        "parentCode":"GZZKCHTQFH",
+                                        "child":[]
+                                    },{
+                                        "name":"商社销售部",
+                                        "code":"ssxxb",
+                                        "icon":"",
+                                        "parentCode":"GZZKCHTQFH",
+                                        "child":[]
+                                    }]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "北京中科慈航",
+                            "icon": "icon-minus-sign",
+                            "code":"BJZKCH",
+                            "parentCode": "ZKCH",
+                            "child": [
+                                {
+                                    "name": "北京中科慈航中城区分行",
+                                    "code":"BJZKCHZCFH",
+                                    "icon": "",
+                                    "parentCode": "BJZKCH",
+                                    "child": []
+                                }
+                            ]
+                        }
+                    ]
+                }, {
+                    "name": "中科科技",
+                    "code":"ZKKJ",
+                    "icon": "icon-th",
+                    "child": [
+                        {
+                            "name": "广州中科科技",
+                            "code":"GZZKKJ",
+                            "icon": "icon-minus-sign",
+                            "parentCode": "ZKKJ",
+                            "child": [
+                                {
+                                    "name": "广州天河中科科技",
+                                    "code":"GZTHZKKJ",
+                                    "icon": "",
+                                    "parentCode": "GZZKKJ",
+                                    "child": []
+                                }
+                            ]
+                        }
+                    ]
+                }];
+
+
+        function tree(data) {
+            for (var i = 0; i < data.length; i++) {
+//                var data2 = data[i];
+                if (data[i].icon == "icon-th") {
+                    $("#rootUL").append("<li data-name='" + data[i].code + "'><span><i class='" + data[i].icon + "'></i> " + data[i].name + "</span></li>");
+                } else {
+                    var children = $("li[data-name='" + data[i].parentCode + "']").children("ul");
+                    if (children.length == 0) {
+                        $("li[data-name='" + data[i].parentCode + "']").append("<ul></ul>")
+                    }
+                    $("li[data-name='" + data[i].parentCode + "'] > ul").append(
+                            "<li data-name='" + data[i].code + "'>" +
+                            "<span>" +
+                            "<i class='" + data[i].icon + "'></i> " +
+                            data[i].name +
+                            "</span>" +
+                            "</li>")
+                }
+                for (var j = 0; j < data[i].child.length; j++) {
+                    var child = data[i].child[j];
+                    var children = $("li[data-name='" + child.parentCode + "']").children("ul");
+                    if (children.length == 0) {
+                        $("li[data-name='" + child.parentCode + "']").append("<ul></ul>")
+                    }
+                    $("li[data-name='" + child.parentCode + "'] > ul").append(
+                            "<li data-name='" + child.code + "'>" +
+                            "<span>" +
+                            "<i class='" + child.icon + "'></i> " +
+                            child.name +
+                            "</span>" +
+                            "</li>")
+                    var child2 = data[i].child[j].child;
+                    tree(child2)
+                }
+                tree(data[i]);
+            }
+
+        }
+
+        tree(json)
+
+
+    });
+
+    $(function () {
+        $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', '关闭');
+        $('.tree li.parent_li > span').on('click', function (e) {
+            var children = $(this).parent('li.parent_li').find(' > ul > li');
+            if (children.is(":visible")) {
+                children.hide('fast');
+                $(this).attr('title', '展开').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');
+            } else {
+                children.show('fast');
+                $(this).attr('title', '关闭').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');
+            }
+            e.stopPropagation();
+        });
+    });
+</script>
+
+<div class="tree well">
+
+    <ul id="rootUL">
+
+    </ul>
+</div>
+
+</body>
+</html>

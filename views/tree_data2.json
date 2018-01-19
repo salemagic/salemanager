@@ -1,0 +1,70 @@
+[{
+	"text": "中科慈航",
+	"code":"ZKCH",
+	"icon": "icon-th",
+	"children": [
+		{
+			"text": "广州中科慈航",
+			"icon": "icon-minus-sign",
+			"code":"GZZKCH",
+			"parentCode": "ZKCH",
+			"children": [
+				{
+					"text": "广州中科慈航天河区分行",
+					"code":"GZZKCHTQFH",
+					"icon": "icon-minus-sign",
+					"parentCode": "GZZKCH",
+					"children": [{
+						"text":"堂下销售部",
+						"code":"txxxb",
+						"icon":"",
+						"parentCode":"GZZKCHTQFH",
+						"children":[]
+					},{
+						"text":"商社销售部",
+						"code":"ssxxb",
+						"icon":"",
+						"parentCode":"GZZKCHTQFH",
+						"children":[]
+					}]
+				}
+			]
+		},
+		{
+			"text": "北京中科慈航",
+			"icon": "icon-minus-sign",
+			"code":"BJZKCH",
+			"parentCode": "ZKCH",
+			"children": [
+				{
+					"text": "北京中科慈航中城区分行",
+					"code":"BJZKCHZCFH",
+					"icon": "",
+					"parentCode": "BJZKCH",
+					"children": []
+				}
+			]
+		}
+	]
+}, {
+	"text": "中科科技",
+	"code":"ZKKJ",
+	"icon": "icon-th",
+	"children": [
+		{
+			"text": "广州中科科技",
+			"code":"GZZKKJ",
+			"icon": "icon-minus-sign",
+			"parentCode": "ZKKJ",
+			"children": [
+				{
+					"text": "广州天河中科科技",
+					"code":"GZTHZKKJ",
+					"icon": "",
+					"parentCode": "GZZKKJ",
+					"children": []
+				}
+			]
+		}
+	]
+}]
