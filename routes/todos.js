@@ -8,6 +8,7 @@ var Todo = AV.Object.extend('Todo');
 var Org =  AV.Object.extend('Organization');
 var Company = AV.Object.extend('Company');
 var jsonStr = '';
+var objString = 'objectId';
 
 
 function queryInfo(id) {
@@ -74,13 +75,62 @@ function queryOrgSingleInfo(upperId) {
   return jsonStr;
 }
 
+router.get('/addorg', function(req, res) {
+  var name = req.query.name;
+  var uppername = req.query.uppername;
+  var orgid = req.query.orgid;
+  var orglevel = +req.query.orglevel;
+  var cpyId = req.query.cpyid;
+  var msg = 'name:' + name + ' cpyid:' + cpyId +  ' upper:' + uppername + ' orgid:' + orgid + ' orglevel:' + orglevel;
+  console.log(msg);
+  orglevel = orglevel / 2;
+
+  var org = new Org();
+  org.set('name', name);
+  org.set('upperOrganization', uppername);
+  org.set('organizationLevel', orglevel);
+  org.set('upperId', orgid);
+  org.set('cpyId', cpyId);
+  org.save().then(function (todo) {
+    // 成功保存之后，执行其他逻辑.
+    // console.log('New object created with objectId: ' + todo.id);
+    todo.set('text',todo.get('name'));
+    todo.set('ajaxed',false);
+    var jsonData = JSON.stringify(todo) ;
+    console.log(jsonData);
+    res.end(jsonData);
+  }, function (error) {
+    // 异常处理
+    console.error('Failed  message: ' + error.message);
+  });
+
+
+  // var org = new Org();
+  // org.set('name', name);
+  // org.set('upperOrganization', uppername);
+  // org.set('organizationLevel', orglevel);
+  // org.set('upperId', orgid);
+  // org.set('cpyId', cpyId);
+  // org.save().then(function (newOrg) {
+  //   newOrg.set('text',newOrg.get('name'));
+  //   newOrg.set('ajaxed',false);
+  //   var jsonData = JSON.stringify(todo) ;
+  //   console.log(jsonData);
+  //   res.end(jsonData);
+  // }, function (error) {
+  //   // 异常处理
+  //   console.error('Failed message: ' + error.message);
+  // });
+
+
+});
 
 router.get('/cpy', function(req, res) {
   var id ;
   id = req.query.id;
   // console.log('cpyId:' + id);
   var query = new AV.Query(Company);
-  query.equalTo('id', +id);
+  query.equalTo(objString, id);
   query.find().then(function (orgs) {
     console.log('company length:' + orgs.length);
     orgs.forEach(function (org) {
@@ -95,10 +145,10 @@ router.get('/cpy', function(req, res) {
 
 router.get('/org', function(req, res) {
   var orgId ;
-  orgId = req.query.id;
-  // console.log('queryid:' + orgId);
+  orgId = req.query.orgId;
+  console.log('queryid:' + orgId);
   var query = new AV.Query(Org);
-  query.equalTo('upperId', +orgId);
+  query.equalTo('upperId', orgId);
   query.find().then(function (orgs) {
     orgs.forEach(function (org) {
       org.set('text',org.get('name'));
@@ -156,8 +206,8 @@ router.get('/', function(req, res, next) {
   query.descending('updatedAt');
   query.limit(50);
   query.find({sessionToken: req.sessionToken}).then(function(results) {
-    console.log("todo",results);
-    console.log("todo",results.toString());
+    // console.log("todo",results);
+    // console.log("todo",results.toString());
     res.render('mainpage', {
       title: '管理页面',
       user: req.currentUser,
