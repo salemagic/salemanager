@@ -103,25 +103,93 @@ router.get('/addorg', function(req, res) {
     // 异常处理
     console.error('Failed  message: ' + error.message);
   });
+});
 
+router.get('/mdyorg', function(req, res) {
+  var newname = req.query.newname;
+  var uppername = req.query.uppername;
+  var orgid = req.query.orgid;
+  var msg = 'name:' + newname + ' upper:' + uppername + ' orgid:' + orgid ;
+  console.log(msg);
 
-  // var org = new Org();
-  // org.set('name', name);
-  // org.set('upperOrganization', uppername);
-  // org.set('organizationLevel', orglevel);
-  // org.set('upperId', orgid);
-  // org.set('cpyId', cpyId);
-  // org.save().then(function (newOrg) {
-  //   newOrg.set('text',newOrg.get('name'));
-  //   newOrg.set('ajaxed',false);
+  if(uppername != null) {//only change upper org
+    var query = new AV.Query(Org);
+    query.equalTo('name', uppername);
+    query.find().then(function (orgs) {
+      var strjson;
+      if(orgs.length > 0){// use first org
+        var org = orgs[0];
+        org.set('text',org.get('name'));
+        org.set('ajaxed',false);
+        strjson = JSON.stringify(org);
+        console.log("father:" + strjson);
+        //save child org
+        var orgUpdate = AV.Object.createWithoutData('Organization', orgid);
+        // var org = new Org();
+        // org.set(objString, orgid);
+        if(newname != null && newname != undefined){
+          orgUpdate.set('name',newname);
+        }
+        orgUpdate.set('upperOrganization',uppername);
+        orgUpdate.set('upperId',org.get(objString));
+        var orgLevel = org.organizationLevel / 2;
+        orgUpdate.set('organizationLevel',orgLevel);
+        orgUpdate.save().then(function (todo) {
+          var jsonData = JSON.stringify(todo) ;
+          console.log("child:" + jsonData);
+          res.end(strjson);
+        }, function (error) {
+          // 异常处理
+          console.error('Failed  message: ' + error.message);
+          res.end("error");
+        });
+      }
+      else {// can not find uppername org
+        strjson = 'error';
+        console.log(strjson);
+        res.end(strjson);
+      }
+    });
+  }
+  // // 第一个参数是 className，第二个参数是 objectId
+  // var org = AV.Object.createWithoutData('Organization', orgid);
+  // // 修改属性
+  // if(name) {
+  //   org.set('name', name);
+  // }
+  // if(uppername){
+  //   org.set('upperOrganization',uppername);
+  // }
+  // // 保存到云端
+  // org.save().then(function (todo) {
+  //   // 成功保存之后，执行其他逻辑.
+  //   // console.log('New object created with objectId: ' + todo.id);
+  //   todo.set('text',todo.get('name'));
+  //   todo.set('ajaxed',false);
   //   var jsonData = JSON.stringify(todo) ;
   //   console.log(jsonData);
   //   res.end(jsonData);
   // }, function (error) {
   //   // 异常处理
-  //   console.error('Failed message: ' + error.message);
+  //   console.error('Failed  message: ' + error.message);
   // });
 
+  // var query = new AV.Query(Org);
+  // query.equalTo(objString, orgid);
+  // query.set('upperOrganization', uppername);
+  // query.set('upperId', orgid);
+  // org.save().then(function (todo) {
+  //   // 成功保存之后，执行其他逻辑.
+  //   // console.log('New object created with objectId: ' + todo.id);
+  //   todo.set('text',todo.get('name'));
+  //   todo.set('ajaxed',false);
+  //   var jsonData = JSON.stringify(todo) ;
+  //   console.log(jsonData);
+  //   res.end(jsonData);
+  // }, function (error) {
+  //   // 异常处理
+  //   console.error('Failed  message: ' + error.message);
+  // });
 
 });
 

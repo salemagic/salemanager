@@ -8,13 +8,21 @@
   <link rel="stylesheet" type="text/css" href="/static/css/icon.css">
   <link rel="stylesheet" type="text/css" href="/static/css/demo.css">
   <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+  <script type="text/javascript" src="/static/js/main.js"></script>
   <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
-  <!--<script type="text/javascript" src="/static/js/updatedata.js"></script>-->
 
   <title><%=title%></title>
 
 </head>
 <body>
+
+<script type="text/javascript">
+    $(function() {
+        requestCompanyInfo();
+        requestOrgInfo();
+        btnClickLogic();
+    });
+</script>
 
 <!--<ul>-->
   <!--<% results.forEach(function(result){ %>-->
@@ -57,7 +65,7 @@
       <div title="About" id="aa" style="padding:10px">ddd</div>
       <div title="DataGrid" style="padding:5px">
           <button type="button" id="btnAdd" class="btn btn-success" onclick="$('#dia-add-new').window('open')">新增</button>
-          <button type="button" id="btnModify" class="btn btn-success" onclick="$('#dia-add-new').window('open')">修改</button>
+          <button type="button" id="btnModify" class="btn btn-success" onclick="$('#dia-modify-org').window('open')">修改</button>
           <p> </p>
 
         <div id="dia-add-new" class="easyui-window" title="新增组织" data-options="modal:true,closed:true,iconCls:'icon-add'" style="width:300px;height:180px;padding:10px;">
@@ -74,9 +82,9 @@
         </div>
 
         <div id="dia-modify-org" class="easyui-window" title="修改组织" data-options="modal:true,closed:true,iconCls:'icon-add'" style="width:300px;height:180px;padding:10px;">
-          <form name="formaddneworg" style="padding:10px 20px 10px 40px;">
+          <form name="formmdyorg" style="padding:10px 20px 10px 40px;">
             <p>组织名称: <input  id="edit-mdy-org-name" type="text" name="name"></p>
-            <p>上级组织: <input type="text" name="uppername" id="edit-mdy-upper-org" value=""></p>
+            <p>上级组织: <input type="text" name="uppername" id="edit-mdy-org-upper" value=""></p>
             <div style="padding:5px;text-align:center;">
               <a type="submit" id="btn-mdy-org-ok" class="easyui-linkbutton" icon="icon-ok">Ok</a>
               <a id="btn-mdy-org-cancel" class="easyui-linkbutton" icon="icon-cancel" onclick="$('#dia-modify-org').window('close')">Cancel</a>
@@ -103,262 +111,5 @@
 
 </div>
 
-
-
-<script type="text/javascript">
-//  $(function () {
-//    document.getElementById("ddd").innerHTML("<p>lfdsjfdsl</p>");
-//  });
-
-//$('#tt').tree({
-//    onClick: function(node){
-//      $('#aa').html(node.text);
-//    }
-//  });
-function createHttpRequest() {
-  var xmlhttp;
-  if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
-  }
-  else
-  {// code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  return xmlhttp;
-}
-
-function requestAddOrg(node)
-{
-  var xmlhttp = createHttpRequest();
-  xmlhttp.onreadystatechange=function()
-  {
-    if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-      var data = xmlhttp.responseText;
-      var treeData = '[' + data + ']';
-      treeData = JSON.parse(treeData);
-      $("#aa").html(xmlhttp.responseText);
-      $('#tt').tree('append', {
-        parent:node.target,
-        data:treeData
-      });
-      var gridData = JSON.parse(data);
-      $('#dg').datagrid('appendRow', gridData);
-    }
-  }
-  var newOrgName = formaddneworg.name.value;
-  var orgLevel = node.organizationLevel;
-  if (orgLevel == null){//表示是公司直接下属机构
-    orgLevel = 10000;
-  }
-  var cpyId = node.cpyId;
-  if(cpyId == null){
-    cpyId = node.objectId;
-  }
-  var orgId = node.objectId;
-  var url = "/todos/addorg?" +
-          "uppername=" + node.name +
-          "&name=" + newOrgName +
-          "&orgid=" + orgId +
-          "&cpyid=" + cpyId +
-          "&orglevel=" + orgLevel;
-  xmlhttp.open("GET",url,true);
-  xmlhttp.send();
-
-  if(node.children == null){
-    cleanDatagrid();
-  }
-
-}
-
-
-$(document).ready(function(){
-
-
-});
-
-function cleanDatagrid() {
-  $('#dg').datagrid('loadData', { total: 0, rows: [] });
-}
-
-function requestOrgInfo() {
-  $("#tt").tree({
-    onClick: function (node) {
-      $("#aa").html(JSON.stringify(node));
-      var orgId = node.objectId;
-      if(node.ajaxed == false){
-        $.ajax({
-          method : 'get',
-          url : '/todos/org?orgId=' + orgId,
-          async : false,
-          dataType : 'json',
-          success : function(data) {
-            $('#tt').tree('append', {
-              parent:node.target,
-              data:data
-            });
-            //======
-            $('#dg').datagrid('loadData', data);
-            if(data.length == 0){
-              cleanDatagrid();
-              $('#dg').datagrid('appendRow', node);
-            }
-
-            $("#aa").html(JSON.stringify(data));
-
-          },
-          error : function() {
-            alert('error');
-          }
-        });
-        node.ajaxed = true;
-      }
-      else {
-        if(node.children == null){
-          cleanDatagrid();
-          $('#dg').datagrid('appendRow', node);
-        }
-        else {
-          $('#dg').datagrid('loadData', node.children);
-        }
-      }
-    }
-  });
-}
-
-$(function(){
-
-  $.ajax({
-    method:'get',
-    url: '/todos/cpy?id=5a60bc6d44d9040067c485a7',
-    async : false,
-    dataType : 'json',
-    success: function (data) {
-      $('#tt').tree('loadData', data);
-
-    },
-    error: function (err) {
-      alert(err);
-    }
-  });
-
-  requestOrgInfo();
-
-  $('#btnAdd').click(function () {
-    var node = $('#tt').tree('getSelected');
-    if (node){
-      $('#edit-upper-org').val(node.name);
-      $('#edit-upper-org').attr("disabled",true);
-    }
-  });
-
-  $('#btn-add-org-ok').click(function () {
-    var node = $('#tt').tree('getSelected');
-    if (node){
-      requestAddOrg(node);
-    }
-    $('#dia-add-new').window('close');
-  });
-
-//  $.ajax({
-//    method : 'GET',
-//    url : '/todos/json',
-//    async : false,
-//    dataType : 'json',
-//    success : function(data) {
-//      $('#dg').datagrid('loadData', data);
-//    }
-//  });
-});
-
-//$(function(){
-//  //do something
-//  var node = $('#tt').tree('getSelected');
-//  if (node){
-//    $('#tt').tree('insert', {
-//      before: node.target,
-//      data: {
-//        id: 21,
-//        text: 'node text'
-//      }
-//    });
-//  }
-//})
-
-
-//var node = $('#tt').tree('getSelected');
-//if (node){
-//  $('#tt').tree('insert', {
-//    before: node.target,
-//    data: {
-//      id: 21,
-//      text: 'node text'
-//    }
-//  });
-//}
-
-//var selected = $('#tt').tree('getSelected');
-//$('#tt').tree('append', {
-//  parent: selected.target,
-//  data: [{
-//    id: 23,
-//    text: 'node23'
-//  },{
-//    text: 'node24',
-//    state: 'closed',
-//    children: [{
-//      text: 'node241'
-//    },{
-//      text: 'node242'
-//    }]
-//  }]
-//});
-
-
-//$('#tt').tree({
-//  data: [{
-//    text: 'Item1',
-//    state: 'closed',
-//    children: [{
-//      text: 'Item11'
-//    },{
-//      text: 'Item12'
-//    }]
-//  },{
-//    text: 'Item2'
-//  }]
-//});
-
-
-
-
-//  $.ajax({
-//    type: 'GET',
-//    url: '/static/tree_data1.json',
-//    success: function (result) {
-//      var myJson = eval('(' + result + ')');
-//      $('#tt').tree({
-//        data: myJson
-//      });
-//    }
-//  });
-
-
-
-//$('#tt').tree({
-//    onClick: function(node){
-//      $('#aa').html(node.text);
-////      alert(node.name);  // 在用户点击的时候提示
-//      if (node){
-//        $('#tt').tree('insert', {
-//          before: node.target,
-//          data: datatest
-//        });
-//      }
-//    }
-//  });
-
-</script>
 </body>
 </html>
