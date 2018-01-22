@@ -86,6 +86,7 @@ function requestModifyOrg(node) {
             if(node){
                 node.ajaxed = false;
                 updateTreeOrgInfo(node,true);
+                $('#tt').tree('select', node.target);
             }
             // var gridData = JSON.parse(data);
             // $('#dg').datagrid('appendRow', gridData);
@@ -138,12 +139,16 @@ function updateTreeOrgInfo(node,cleanChildren) {
             async : false,
             dataType : 'json',
             success : function(data) {
-                if( cleanChildren == true){
-                    var children = $('#tt').tree('getChildren', node.target);//子节点（市）
-                    if(children.length > 0){
-                        children.forEach(function (child) {//
-                            $('#tt').tree('remove',child.target);
-                        })
+                if( cleanChildren == true) {
+                    if ($('#tt').tree('isLeaf', node.target)){
+                    }
+                    else {//有子节点才做删除操作
+                        var children = $('#tt').tree('getChildren', node.target);//子节点（市）
+                        if(children.length > 0){
+                            children.forEach(function (child) {//
+                                $('#tt').tree('remove',child.target);
+                            })
+                        }
                     }
                 }
                 $('#tt').tree('append', {

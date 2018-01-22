@@ -133,7 +133,7 @@ router.get('/mdyorg', function(req, res) {
         }
         orgUpdate.set('upperOrganization',uppername);
         orgUpdate.set('upperId',org.get(objString));
-        var orgLevel = org.organizationLevel / 2;
+        var orgLevel = org.get('organizationLevel') / 2;
         orgUpdate.set('organizationLevel',orgLevel);
         orgUpdate.save().then(function (todo) {
           var jsonData = JSON.stringify(todo) ;
