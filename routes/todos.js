@@ -146,11 +146,27 @@ router.get('/mdyorg', function(req, res) {
         });
       }
       else {// can not find uppername org
-        strjson = 'error';
+        strjson = 'cant not find org';
         console.log(strjson);
         res.end(strjson);
       }
     });
+  }
+  else {
+    var org = AV.Object.createWithoutData('Organization', orgid);
+    if(newname != null && newname != undefined){
+      org.set('name',newname);
+      org.save().then(function (todo) {
+        var jsonData = JSON.stringify(todo) ;
+        console.log("onlychangename:" + jsonData);
+        res.end("change org success");
+      }, function (error) {
+        // 异常处理
+        console.error('Failed  message: ' + error.message);
+        res.end("error");
+      });
+    }
+
   }
   // // 第一个参数是 className，第二个参数是 objectId
   // var org = AV.Object.createWithoutData('Organization', orgid);

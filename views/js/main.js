@@ -72,28 +72,30 @@ function requestModifyOrg(node) {
 
             var data = xmlhttp.responseText;
 
-            var treeData = JSON.parse(data);
-
-            //更新修改节点原父节点的信息
-            var node = $('#tt').tree('getSelected');
-            if(node){
-                node.ajaxed = false;
-                updateTreeOrgInfo(node,true);
-            }
-
-            //更新修改节点新父节点的信息
-            node = $('#tt').tree('find', treeData.id);
-            if(node){
-                node.ajaxed = false;
-                updateTreeOrgInfo(node,true);
-                $('#tt').tree('select', node.target);
-            }
-            // var gridData = JSON.parse(data);
-            // $('#dg').datagrid('appendRow', gridData);
-
-            if(data.indexOf("error") != -1){
+            if(data.indexOf("cant not find org") != -1){
                 var msg = "找不到名称叫 " + upperOrgName  +" 的组织";
                 alert(msg);
+            }
+            else if(data.indexOf("change org success") != -1){ //仅是修改org名称成功
+
+            }
+            else {//修改org的upper org 成功
+                var treeData = JSON.parse(data);
+
+                //更新修改节点原父节点的信息
+                var node = $('#tt').tree('getSelected');
+                if(node){
+                    node.ajaxed = false;
+                    updateTreeOrgInfo(node,true);
+                }
+
+                //更新修改节点新父节点的信息
+                node = $('#tt').tree('find', treeData.id);
+                if(node){
+                    node.ajaxed = false;
+                    updateTreeOrgInfo(node,true);
+                    $('#tt').tree('select', node.target);
+                }
             }
         }
     };
