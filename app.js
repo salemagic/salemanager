@@ -52,7 +52,7 @@ app.use('/xml', require('./routes/xml'));
 app.use('/lean-cache', require('./lean-cache'));
 
 app.get('/', function(req, res) {
-  res.redirect('/todos');
+  res.redirect('/users/login');
 });
 
 app.use(function(req, res, next) {
