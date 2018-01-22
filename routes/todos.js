@@ -121,6 +121,7 @@ router.get('/mdyorg', function(req, res) {
         var org = orgs[0];
         org.set('text',org.get('name'));
         org.set('ajaxed',false);
+        org.set('id',org.get(objString));
         strjson = JSON.stringify(org);
         console.log("father:" + strjson);
         //save child org
@@ -204,6 +205,7 @@ router.get('/cpy', function(req, res) {
     orgs.forEach(function (org) {
       org.set('text',org.get('name'));
       org.set('ajaxed',false);
+      org.set('id',org.get(objString));
     });
     var strjson = JSON.stringify(orgs);
     console.log('orgs:' + strjson);
@@ -221,6 +223,7 @@ router.get('/org', function(req, res) {
     orgs.forEach(function (org) {
       org.set('text',org.get('name'));
       org.set('ajaxed',false);
+      org.set('id',org.get(objString));
     });
     var strjson = JSON.stringify(orgs);
     res.end(strjson);

@@ -25,23 +25,25 @@ function requestAddOrg(node) {
             var treeData = '[' + data + ']';
             treeData = JSON.parse(treeData);
             $("#aa").html(xmlhttp.responseText);
+            //添加数的节点的子节点数据
             $('#tt').tree('append', {
                 parent:node.target,
                 data:treeData
             });
+            //在treegrid表格后追加一行添加的信息
             var gridData = JSON.parse(data);
             $('#dg').datagrid('appendRow', gridData);
         }
-    }
+    };
     var newOrgName = formaddneworg.name.value;
     var orgLevel = node.organizationLevel;
     if (orgLevel == null){//表示是公司直接下属机构
         orgLevel = 10000;
-    }
+    };
     var cpyId = node.cpyId;
     if(cpyId == null){
         cpyId = node.objectId;
-    }
+    };
     var orgId = node.objectId;
     var url = "/todos/addorg?" +
         "uppername=" + node.name +
@@ -70,17 +72,20 @@ function requestModifyOrg(node) {
 
             var data = xmlhttp.responseText;
 
-            // var treeData = '[' + data + ']';
             var treeData = JSON.parse(data);
-            var node = $('#tt').tree('find', treeData.objectId);
+
+            //更新修改节点原父节点的信息
+            var node = $('#tt').tree('getSelected');
             if(node){
                 node.ajaxed = false;
+                updateTreeOrgInfo(node,true);
             }
 
-            node = $('#tt').tree('getSelected');
+            //更新修改节点新父节点的信息
+            node = $('#tt').tree('find', treeData.id);
             if(node){
                 node.ajaxed = false;
-                updateTreeOrgInfo(node);
+                updateTreeOrgInfo(node,true);
             }
             // var gridData = JSON.parse(data);
             // $('#dg').datagrid('appendRow', gridData);
@@ -124,7 +129,7 @@ function cleanDatagrid() {
     $('#dg').datagrid('loadData', { total: 0, rows: [] });
 }
 
-function updateTreeOrgInfo(node) {
+function updateTreeOrgInfo(node,cleanChildren) {
     var orgId = node.objectId;
     if(node.ajaxed == false){
         $.ajax({
@@ -133,6 +138,14 @@ function updateTreeOrgInfo(node) {
             async : false,
             dataType : 'json',
             success : function(data) {
+                if( cleanChildren == true){
+                    var children = $('#tt').tree('getChildren', node.target);//子节点（市）
+                    if(children.length > 0){
+                        children.forEach(function (child) {//
+                            $('#tt').tree('remove',child.target);
+                        })
+                    }
+                }
                 $('#tt').tree('append', {
                     parent:node.target,
                     data:data
@@ -168,7 +181,7 @@ function requestOrgInfo() {
     $("#tt").tree({
         onClick: function (node) {
             $("#aa").html(JSON.stringify(node));
-            updateTreeOrgInfo(node);
+            updateTreeOrgInfo(node,false);
         }
     });
 }
