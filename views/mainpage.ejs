@@ -66,6 +66,7 @@
       <div title="DataGrid" style="padding:5px">
           <button type="button" id="btnAdd" class="btn btn-success" onclick="$('#dia-add-new').window('open')">新增</button>
           <button type="button" id="btnModify" class="btn btn-success" onclick="$('#dia-modify-org').window('open')">修改</button>
+          <button type="button" id="btnDel" class="btn btn-success" onclick="$('#dia-del-org').window('open')">删除</button>
           <p> </p>
 
         <div id="dia-add-new" class="easyui-window" title="新增组织" data-options="modal:true,closed:true,iconCls:'icon-add'" style="width:300px;height:180px;padding:10px;">
@@ -81,15 +82,12 @@
           </form>
         </div>
 
-        <div id="dia-modify-org" class="easyui-window" title="修改组织" data-options="modal:true,closed:true,iconCls:'icon-add'" style="width:300px;height:180px;padding:10px;">
-          <form name="formmdyorg" style="padding:10px 20px 10px 40px;">
-            <p>组织名称: <input  id="edit-mdy-org-name" type="text" name="name"></p>
-            <p>上级组织: <input type="text" name="uppername" id="edit-mdy-org-upper" value=""></p>
+        <div id="dia-del-org" class="easyui-window" title="删除组织" data-options="modal:true,closed:true,iconCls:'icon-add'" style="width:300px;height:130px;padding:10px;">
+            <p>将删除该组织及其下属所有的子组织机构，确定要删除吗？</p>
             <div style="padding:5px;text-align:center;">
-              <a type="submit" id="btn-mdy-org-ok" class="easyui-linkbutton" icon="icon-ok">Ok</a>
-              <a id="btn-mdy-org-cancel" class="easyui-linkbutton" icon="icon-cancel" onclick="$('#dia-modify-org').window('close')">Cancel</a>
+              <a id="btn-del-org-ok" class="easyui-linkbutton" icon="icon-ok">Ok</a>
+              <a id="btn-del-org-cancel" class="easyui-linkbutton" icon="icon-cancel" onclick="$('#dia-del-org').window('close')">Cancel</a>
             </div>
-          </form>
         </div>
 
         <table class="easyui-datagrid" id="dg"

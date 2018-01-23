@@ -81,6 +81,39 @@ function addOrgExtInfo(org) {
   org.set('id',org.get(objString));
 }
 
+router.get('/delorg', function(req, res) {
+  var id = req.query.id;
+  var msg = ' cpyid:' + id;
+  console.log(msg);
+
+  var org = AV.Object.createWithoutData('Organization', id);
+  org.destroy().then(function (success) {
+    // 删除成功
+    res.end(id);
+  }, function (error) {
+    // 删除失败
+    console.error('delete org Failed: ' + error.message);
+  });
+
+  // var org = new Org();
+  // org.set('name', name);
+  // org.set('upperOrganization', uppername);
+  // org.set('organizationLevel', orglevel);
+  // org.set('upperId', orgid);
+  // org.set('cpyId', cpyId);
+  // org.save().then(function (todo) {
+  //   // 成功保存之后，执行其他逻辑.
+  //   // console.log('New object created with objectId: ' + todo.id);
+  //   addOrgExtInfo(todo);
+  //   var jsonData = JSON.stringify(todo) ;
+  //   console.log(jsonData);
+  //   res.end(jsonData);
+  // }, function (error) {
+  //   // 异常处理
+  //   console.error('Failed  message: ' + error.message);
+  // });
+});
+
 router.get('/addorg', function(req, res) {
   var name = req.query.name;
   var uppername = req.query.uppername;

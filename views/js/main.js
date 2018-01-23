@@ -64,6 +64,55 @@ function requestAddOrg(node) {
     }
 }
 
+function requestDelOrg(node) {
+    var xmlhttp = createHttpRequest();
+    xmlhttp.onreadystatechange=function()
+    {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200)
+        {
+            var data = xmlhttp.responseText;
+            // var treeData = '[' + data + ']';
+            // treeData = JSON.parse(treeData);
+            // $("#aa").html(xmlhttp.responseText);
+            // //添加数的节点的子节点数据
+            // $('#tt').tree('append', {
+            //     parent:node.target,
+            //     data:treeData
+            // });
+            // //在treegrid表格后追加一行添加的信息
+            // var gridData = JSON.parse(data);
+            // $('#dg').datagrid('appendRow', gridData);
+        }
+    };
+    var newOrgName = formaddneworg.name.value;
+    if((newOrgName == null) || (newOrgName == "")){
+        alert("请输入组织名称");
+    }
+    else {
+        var orgLevel = node.organizationLevel;
+        if (orgLevel == null){//表示是公司直接下属机构
+            orgLevel = 10000;
+        };
+        var cpyId = node.cpyId;
+        if(cpyId == null){
+            cpyId = node.objectId;
+        };
+        var orgId = node.objectId;
+        var url = "/todos/addorg?" +
+            "uppername=" + node.name +
+            "&name=" + newOrgName +
+            "&orgid=" + orgId +
+            "&cpyid=" + cpyId +
+            "&orglevel=" + orgLevel;
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
+
+        if(node.children == null){
+            cleanDatagrid();
+        }
+    }
+}
+
 function requestModifyOrg(node) {
     var curOrgName = formmdyorg.name.value;
     var upperOrgName = formmdyorg.uppername.value;
@@ -285,4 +334,13 @@ function btnClickLogic() {
         }
         $('#dia-modify-org').window('close');
     });
+
+    $('#btn-del-org-ok').click(function () {
+        var row = $('#dg').datagrid('getSelected');
+        if (row) {
+            requestDelOrg(row);
+        }
+        $('#dia-del-org').window('close');
+    });
+
 }
