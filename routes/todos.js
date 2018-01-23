@@ -75,6 +75,12 @@ function queryOrgSingleInfo(upperId) {
   return jsonStr;
 }
 
+function addOrgExtInfo(org) {
+  org.set('text',org.get('name'));
+  org.set('ajaxed',false);
+  org.set('id',org.get(objString));
+}
+
 router.get('/addorg', function(req, res) {
   var name = req.query.name;
   var uppername = req.query.uppername;
@@ -94,8 +100,7 @@ router.get('/addorg', function(req, res) {
   org.save().then(function (todo) {
     // 成功保存之后，执行其他逻辑.
     // console.log('New object created with objectId: ' + todo.id);
-    todo.set('text',todo.get('name'));
-    todo.set('ajaxed',false);
+    addOrgExtInfo(todo);
     var jsonData = JSON.stringify(todo) ;
     console.log(jsonData);
     res.end(jsonData);
@@ -112,16 +117,14 @@ router.get('/mdyorg', function(req, res) {
   var msg = 'name:' + newname + ' upper:' + uppername + ' orgid:' + orgid ;
   console.log(msg);
 
-  if(uppername != null) {//only change upper org
+  if((uppername != null) && (uppername.indexOf('none') == -1)) {//only change upper org
     var query = new AV.Query(Org);
     query.equalTo('name', uppername);
     query.find().then(function (orgs) {
       var strjson;
       if(orgs.length > 0){// use first org
         var org = orgs[0];
-        org.set('text',org.get('name'));
-        org.set('ajaxed',false);
-        org.set('id',org.get(objString));
+        addOrgExtInfo(org);
         strjson = JSON.stringify(org);
         console.log("father:" + strjson);
         //save child org
@@ -157,56 +160,17 @@ router.get('/mdyorg', function(req, res) {
     if(newname != null && newname != undefined){
       org.set('name',newname);
       org.save().then(function (todo) {
+        // var objId = todo.get(objString);
         var jsonData = JSON.stringify(todo) ;
         console.log("onlychangename:" + jsonData);
-        res.end("change org success");
+        res.end("changeorgsuccess:" + jsonData);
       }, function (error) {
         // 异常处理
         console.error('Failed  message: ' + error.message);
         res.end("error");
       });
     }
-
   }
-  // // 第一个参数是 className，第二个参数是 objectId
-  // var org = AV.Object.createWithoutData('Organization', orgid);
-  // // 修改属性
-  // if(name) {
-  //   org.set('name', name);
-  // }
-  // if(uppername){
-  //   org.set('upperOrganization',uppername);
-  // }
-  // // 保存到云端
-  // org.save().then(function (todo) {
-  //   // 成功保存之后，执行其他逻辑.
-  //   // console.log('New object created with objectId: ' + todo.id);
-  //   todo.set('text',todo.get('name'));
-  //   todo.set('ajaxed',false);
-  //   var jsonData = JSON.stringify(todo) ;
-  //   console.log(jsonData);
-  //   res.end(jsonData);
-  // }, function (error) {
-  //   // 异常处理
-  //   console.error('Failed  message: ' + error.message);
-  // });
-
-  // var query = new AV.Query(Org);
-  // query.equalTo(objString, orgid);
-  // query.set('upperOrganization', uppername);
-  // query.set('upperId', orgid);
-  // org.save().then(function (todo) {
-  //   // 成功保存之后，执行其他逻辑.
-  //   // console.log('New object created with objectId: ' + todo.id);
-  //   todo.set('text',todo.get('name'));
-  //   todo.set('ajaxed',false);
-  //   var jsonData = JSON.stringify(todo) ;
-  //   console.log(jsonData);
-  //   res.end(jsonData);
-  // }, function (error) {
-  //   // 异常处理
-  //   console.error('Failed  message: ' + error.message);
-  // });
 
 });
 
@@ -219,9 +183,7 @@ router.get('/cpy', function(req, res) {
   query.find().then(function (orgs) {
     console.log('company length:' + orgs.length);
     orgs.forEach(function (org) {
-      org.set('text',org.get('name'));
-      org.set('ajaxed',false);
-      org.set('id',org.get(objString));
+      addOrgExtInfo(org);
     });
     var strjson = JSON.stringify(orgs);
     console.log('orgs:' + strjson);
@@ -237,9 +199,7 @@ router.get('/org', function(req, res) {
   query.equalTo('upperId', orgId);
   query.find().then(function (orgs) {
     orgs.forEach(function (org) {
-      org.set('text',org.get('name'));
-      org.set('ajaxed',false);
-      org.set('id',org.get(objString));
+      addOrgExtInfo(org);
     });
     var strjson = JSON.stringify(orgs);
     res.end(strjson);

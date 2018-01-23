@@ -36,32 +36,39 @@ function requestAddOrg(node) {
         }
     };
     var newOrgName = formaddneworg.name.value;
-    var orgLevel = node.organizationLevel;
-    if (orgLevel == null){//表示是公司直接下属机构
-        orgLevel = 10000;
-    };
-    var cpyId = node.cpyId;
-    if(cpyId == null){
-        cpyId = node.objectId;
-    };
-    var orgId = node.objectId;
-    var url = "/todos/addorg?" +
-        "uppername=" + node.name +
-        "&name=" + newOrgName +
-        "&orgid=" + orgId +
-        "&cpyid=" + cpyId +
-        "&orglevel=" + orgLevel;
-    xmlhttp.open("GET",url,true);
-    xmlhttp.send();
+    if((newOrgName == null) || (newOrgName == "")){
+        alert("请输入组织名称");
+    }
+    else {
+        var orgLevel = node.organizationLevel;
+        if (orgLevel == null){//表示是公司直接下属机构
+            orgLevel = 10000;
+        };
+        var cpyId = node.cpyId;
+        if(cpyId == null){
+            cpyId = node.objectId;
+        };
+        var orgId = node.objectId;
+        var url = "/todos/addorg?" +
+            "uppername=" + node.name +
+            "&name=" + newOrgName +
+            "&orgid=" + orgId +
+            "&cpyid=" + cpyId +
+            "&orglevel=" + orgLevel;
+        xmlhttp.open("GET",url,true);
+        xmlhttp.send();
 
-    if(node.children == null){
-        cleanDatagrid();
+        if(node.children == null){
+            cleanDatagrid();
+        }
     }
 }
 
 function requestModifyOrg(node) {
     var curOrgName = formmdyorg.name.value;
     var upperOrgName = formmdyorg.uppername.value;
+    curOrgName = curOrgName.trim();
+    upperOrgName = upperOrgName.trim();
 
     var xmlhttp = createHttpRequest();
     xmlhttp.onreadystatechange=function()
@@ -76,41 +83,78 @@ function requestModifyOrg(node) {
                 var msg = "找不到名称叫 " + upperOrgName  +" 的组织";
                 alert(msg);
             }
-            else if(data.indexOf("change org success") != -1){ //仅是修改org名称成功
+            else {
+                var sucIndex = data.indexOf("changeorgsuccess");
+                if(sucIndex != -1){ //仅是修改org名称成功
+                    var strJson = data.substring(data.indexOf(":") + 1);
+                    var dataJson = JSON.parse(strJson);
+                    var treeNode = $('#tt').tree('find', dataJson.objectId);
+                    treeNode.name = dataJson.name;
+                    treeNode.text = dataJson.name;
+                    if (treeNode){
+                        //update tree node
+                        $('#tt').tree('update', {
+                            target: treeNode.target,
+                            text: treeNode.text
+                        });
 
-            }
-            else {//修改org的upper org 成功
-                var treeData = JSON.parse(data);
-
-                //更新修改节点原父节点的信息
-                var node = $('#tt').tree('getSelected');
-                if(node){
-                    node.ajaxed = false;
-                    updateTreeOrgInfo(node,true);
+                        //update treegrid
+                        var data = $('#dg').datagrid('getData');
+                        if(data){
+                            if(data.rows.length > 0){
+                                for(var i=0;i<data.rows.length;i++){
+                                    var dataRow = data.rows[i];
+                                    var resId = dataRow['id'];
+                                    if(resId == dataJson.objectId){
+                                        $('#dg').datagrid('updateRow', {
+                                            index: i,
+                                            row: {
+                                                "name": dataRow['name']
+                                            }
+                                        });
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+                else {//修改org的upper org 成功
+                    var treeData = JSON.parse(data);
 
-                //更新修改节点新父节点的信息
-                node = $('#tt').tree('find', treeData.id);
-                if(node){
-                    node.ajaxed = false;
-                    updateTreeOrgInfo(node,true);
-                    $('#tt').tree('select', node.target);
+                    //更新修改节点原父节点的信息
+                    var node = $('#tt').tree('getSelected');
+                    if(node){
+                        node.ajaxed = false;
+                        updateTreeOrgInfo(node,true);
+                    }
+
+                    //更新修改节点新父节点的信息
+                    node = $('#tt').tree('find', treeData.id);
+                    if(node){
+                        node.ajaxed = false;
+                        updateTreeOrgInfo(node,true);
+                        $('#tt').tree('select', node.target);
+                    }
                 }
             }
         }
-    };
+    }
 
-    if(curOrgName == node.name &&  upperOrgName == node.upperOrganization){
+    if( (curOrgName == null) || (upperOrgName == null) || (curOrgName == "") || (upperOrgName == "")){
+        alert('请输入正确的名称或上级');
+    }
+    else if(curOrgName == node.name &&  upperOrgName == node.upperOrganization){
         // $.toaster('input info no change');
         alert('input info no change');
         return;
     }
     else {
-        var newName;
+        var newName = curOrgName;
         // if(curOrgName != node.name){
-            newName = curOrgName;
+        //     newName = curOrgName;
         // }
-        var newUpperName;
+        var newUpperName = "none";
         if(upperOrgName != node.upperOrganization){
             newUpperName = upperOrgName;
         }
