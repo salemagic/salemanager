@@ -29,27 +29,29 @@ function queryInfo(id) {
 }
 
 
-function queryOrgInfo(upperId) {
-  // var GuangDong = AV.Object.createWithoutData(name, objId);
-
-  jsonStr += '"children":[';
+function delOrgNode(upperId) {
   var query = new AV.Query(Org);
   query.equalTo('upperId', upperId);
   query.find().then(function (orgs) {
     if(orgs.length > 0){
-      orgs.forEach(function (org,index) {
-        // console.log('upperId:' + upperId  + '   ' + org.get('name') + '   curId:' + org.get('Id'));
-        jsonStr += '{';
-        jsonStr += ' "id": ' + org.get('Id') + ',';
-        jsonStr += ' "text": ' + '"' + org.get('name') + '",';
-        queryOrgInfo(org.get('Id'));
-        jsonStr += '},';
+      orgs.forEach(function (org) {
+        console.log('upperId:' + upperId  + ' name:' + org.get('name') + '   curId:' + org.get(objString));
+        delOrgNode(org.get(objString));
       });
     }
   });
-  jsonStr += ']';
-  console.log('jsonstr:' + jsonStr);
-  return jsonStr;
+  delOrg(upperId);
+}
+
+function  delOrg(id) {
+  var org = AV.Object.createWithoutData('Organization', id);
+  org.destroy().then(function (success) {
+    // 删除成功
+    console.log('delsuccess:' + id);
+  }, function (error) {
+    // 删除失败
+    console.error('delete org Failed: ' +  id + ' errmsg:' + error.message);
+  });
 }
 
 function queryOrgSingleInfo(upperId) {
@@ -82,36 +84,11 @@ function addOrgExtInfo(org) {
 }
 
 router.get('/delorg', function(req, res) {
-  var id = req.query.id;
-  var msg = ' cpyid:' + id;
+  var orgid = req.query.orgid;
+  var msg = ' delorgid:' + orgid;
   console.log(msg);
-
-  var org = AV.Object.createWithoutData('Organization', id);
-  org.destroy().then(function (success) {
-    // 删除成功
-    res.end(id);
-  }, function (error) {
-    // 删除失败
-    console.error('delete org Failed: ' + error.message);
-  });
-
-  // var org = new Org();
-  // org.set('name', name);
-  // org.set('upperOrganization', uppername);
-  // org.set('organizationLevel', orglevel);
-  // org.set('upperId', orgid);
-  // org.set('cpyId', cpyId);
-  // org.save().then(function (todo) {
-  //   // 成功保存之后，执行其他逻辑.
-  //   // console.log('New object created with objectId: ' + todo.id);
-  //   addOrgExtInfo(todo);
-  //   var jsonData = JSON.stringify(todo) ;
-  //   console.log(jsonData);
-  //   res.end(jsonData);
-  // }, function (error) {
-  //   // 异常处理
-  //   console.error('Failed  message: ' + error.message);
-  // });
+  delOrgNode(orgid);
+  res.end("delete operation run");
 });
 
 router.get('/addorg', function(req, res) {
@@ -227,7 +204,7 @@ router.get('/cpy', function(req, res) {
 router.get('/org', function(req, res) {
   var orgId ;
   orgId = req.query.orgId;
-  console.log('queryid:' + orgId);
+  // console.log('queryid:' + orgId);
   var query = new AV.Query(Org);
   query.equalTo('upperId', orgId);
   query.find().then(function (orgs) {

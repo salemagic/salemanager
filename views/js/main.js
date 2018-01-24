@@ -64,6 +64,15 @@ function requestAddOrg(node) {
     }
 }
 
+function removeChildNode(node) {
+    var children = $('#tt').tree('getChildren', node.target);//子节点（市）
+    if(children.length > 0){
+        children.forEach(function (child) {//
+            $('#tt').tree('remove',child.target);
+        })
+    }
+}
+
 function requestDelOrg(node) {
     var xmlhttp = createHttpRequest();
     xmlhttp.onreadystatechange=function()
@@ -71,45 +80,33 @@ function requestDelOrg(node) {
         if (xmlhttp.readyState==4 && xmlhttp.status==200)
         {
             var data = xmlhttp.responseText;
-            // var treeData = '[' + data + ']';
-            // treeData = JSON.parse(treeData);
-            // $("#aa").html(xmlhttp.responseText);
-            // //添加数的节点的子节点数据
-            // $('#tt').tree('append', {
-            //     parent:node.target,
-            //     data:treeData
-            // });
-            // //在treegrid表格后追加一行添加的信息
-            // var gridData = JSON.parse(data);
-            // $('#dg').datagrid('appendRow', gridData);
+            //$("#aa").html(xmlhttp.responseText);
         }
     };
-    var newOrgName = formaddneworg.name.value;
-    if((newOrgName == null) || (newOrgName == "")){
-        alert("请输入组织名称");
+    var orgId = node.objectId;
+    var url = "/todos/delorg?" + "orgid=" + orgId ;
+    xmlhttp.open("GET",url,true);
+    xmlhttp.send();
+    //update datagrid ui
+    var rowIndex = $('#dg').datagrid('getRowIndex',node);
+    $('#dg').datagrid('deleteRow',rowIndex);
+    //update tree ui
+    var treeNode = $('#tt').tree('find', node.id);
+    if(treeNode){
+        $('#tt').tree('remove',treeNode.target);
     }
-    else {
-        var orgLevel = node.organizationLevel;
-        if (orgLevel == null){//表示是公司直接下属机构
-            orgLevel = 10000;
-        };
-        var cpyId = node.cpyId;
-        if(cpyId == null){
-            cpyId = node.objectId;
-        };
-        var orgId = node.objectId;
-        var url = "/todos/addorg?" +
-            "uppername=" + node.name +
-            "&name=" + newOrgName +
-            "&orgid=" + orgId +
-            "&cpyid=" + cpyId +
-            "&orglevel=" + orgLevel;
-        xmlhttp.open("GET",url,true);
-        xmlhttp.send();
 
-        if(node.children == null){
-            cleanDatagrid();
-        }
+    var parent = $('#tt').tree('getParent',node.target);
+    if (parent) {
+        var jsonData = JSON.stringify(parent.children);
+        jsonData = eval(jsonData);
+        removeChildNode(parent);
+        $('#tt').tree('reload', parent.target);
+        $('#tt').tree('append', {
+            parent:parent.target,
+            data:jsonData
+        });
+        $("#aa").html(JSON.stringify(parent));
     }
 }
 
@@ -158,7 +155,7 @@ function requestModifyOrg(node) {
                                         $('#dg').datagrid('updateRow', {
                                             index: i,
                                             row: {
-                                                "name": dataRow['name']
+                                                "name": treeNode.name
                                             }
                                         });
                                         break;
@@ -238,12 +235,7 @@ function updateTreeOrgInfo(node,cleanChildren) {
                     if ($('#tt').tree('isLeaf', node.target)){
                     }
                     else {//有子节点才做删除操作
-                        var children = $('#tt').tree('getChildren', node.target);//子节点（市）
-                        if(children.length > 0){
-                            children.forEach(function (child) {//
-                                $('#tt').tree('remove',child.target);
-                            })
-                        }
+                        removeChildNode(node);
                     }
                 }
                 $('#tt').tree('append', {
@@ -252,7 +244,7 @@ function updateTreeOrgInfo(node,cleanChildren) {
                 });
                 //======
                 $('#dg').datagrid('loadData', data);
-                if(data.length == 0){
+                if(data.length == 0){ //如果市叶子节点则显示自己
                     cleanDatagrid();
                     $('#dg').datagrid('appendRow', node);
                 }
@@ -306,8 +298,8 @@ function btnClickLogic() {
     $('#btnAdd').click(function () {
         var node = $('#tt').tree('getSelected');
         if (node) {
-            $('#edit-upper-org').val(node.name);
-            $('#edit-upper-org').attr("disabled", true);
+            $('#edit-add-org-upper').val(node.name);
+            $('#edit-add-org-upper').attr("disabled", true);
         }
     });
 
@@ -336,11 +328,11 @@ function btnClickLogic() {
     });
 
     $('#btn-del-org-ok').click(function () {
+        $('#dia-del-org').window('close');
         var row = $('#dg').datagrid('getSelected');
         if (row) {
             requestDelOrg(row);
         }
-        $('#dia-del-org').window('close');
     });
 
 }
